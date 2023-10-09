@@ -1,0 +1,59 @@
+<!-- book_details.html -->
+{% extends "base.html" %}
+
+{% block content %}
+    <h2>{{ book.title }}</h2>
+    <img src="{{ book.cover_image_url }}" alt="{{ book.title }}" class="mb-3">
+    <p><strong>Author:</strong> {{ book.author }}</p>
+    <p><strong>Genre:</strong> {{ book.genre }}</p>
+    <p><strong>Publication Date:</strong> {{ book.publication_date }}</p>
+
+    <!-- Full Description -->
+    <h3>Description:</h3>
+    <p>{{ book.description }}</p>
+
+    <h3>Reviews:</h3>
+    {% for review in book.reviews %}
+        <div class="card bg-secondary mb-3">
+            <div class="card-body">
+                <strong>{{ review.author.username }}</strong> rated it {{ review.rating }} stars:
+                <p>{{ review.content }}</p>
+            </div>
+        </div>
+    {% endfor %}
+
+    <h3>Write a Review:</h3>
+    <form method="post" class="mb-4">
+        <div class="form-group">
+            <textarea name="review_content" placeholder="Write your review here..." class="form-control bg-dark text-white"></textarea>
+        </div>
+        <div class="form-group">
+            <label for="rating">Rating:</label>
+            <select name="rating" class="form-control bg-dark text-white">
+                <option value="1">1 Star</option>
+                <option value="2">2 Stars</option>
+                <option value="3">3 Stars</option>
+                <option value="4">4 Stars</option>
+                <option value="5">5 Stars</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <input type="submit" value="Submit Review" class="btn btn-primary">
+        </div>
+    </form>
+
+    <!-- Related Movies Section -->
+    <h3>Related Movies:</h3>
+    {% if movie_data %}
+        <ul>
+            {% for movie in movie_data %}
+                <li>
+                    <img src="https://image.tmdb.org/t/p/w500{{ movie['poster_path'] }}" alt="{{ movie['title'] }}" width="100">
+                    {{ movie['title'] }} ({{ movie['release_date'] }}) - Rating: {{ movie['vote_average'] }}/10
+                </li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <p>No related movies found.</p>
+    {% endif %}
+{% endblock %}

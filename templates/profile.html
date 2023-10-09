@@ -1,0 +1,149 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-5">
+    <!-- Profile Card -->
+    <div class="profile-card">
+        <div class="profile-image">
+            <img src="{{ current_user.profile_image_url }}" alt="{{ current_user.username }}'s profile image">
+        </div>
+        <div class="profile-info">
+            <h2>{{ current_user.username }}</h2>
+            <p>{{ current_user.bio }}</p>
+            <div class="profile-stats">
+                <div class="stat">
+                    <span class="stat-count">{{ current_user.total_books }}</span>
+                    <span class="stat-label">Books</span>
+                </div>
+                <div class="stat">
+                    <span class="stat-count">{{ current_user.total_reviews }}</span>
+                    <span class="stat-label">Reviews</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Reviews Section -->
+    <div class="reviews-section mt-5">
+        <h3>Your Reviews</h3>
+        {% for review in reviews %}
+            <div class="review-card">
+                <img src="{{ review.book.cover_image_url }}" alt="{{ review.book.title }}" class="review-book-image">
+                <div class="review-content">
+                    <h4>{{ review.book.title }}</h4>
+                    <p><strong>Rating:</strong> {{ review.rating }} Stars</p>
+                    <p><strong>Review:</strong> {{ review.content }}</p>
+                </div>
+                <!-- Delete Review Form -->
+                <form method="POST" action="{{ url_for('delete_review', review_id=review.id) }}" class="delete-form">
+                    <input type="submit" value="Delete" class="delete-btn">
+                </form>
+            </div>
+        {% else %}
+            <p>You have not written any reviews yet.</p>
+        {% endfor %}
+    </div>
+</div>
+
+<style>
+    .profile-card {
+        display: flex;
+        align-items: center;
+        background-color: #fff;
+        padding: 20px;
+        border-radius: 10px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    .profile-image img {
+        width: 100px;
+        height: 100px;
+        border-radius: 50%;
+        object-fit: cover;
+        margin-right: 20px;
+    }
+
+    .profile-info h2 {
+        font-size: 24px;
+        margin-bottom: 10px;
+    }
+
+    .profile-info p {
+        font-size: 16px;
+        color: #777;
+        margin-bottom: 20px;
+    }
+
+    .profile-stats {
+        display: flex;
+        gap: 20px;
+    }
+
+    .stat {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .stat-count {
+        font-size: 20px;
+        font-weight: bold;
+    }
+
+    .stat-label {
+        font-size: 14px;
+        color: #777;
+    }
+
+    /* Additional CSS for Reviews Section */
+    .reviews-section {
+        margin-top: 40px;
+    }
+
+    .review-card {
+        display: flex;
+        align-items: center;
+        margin-bottom: 20px;
+        padding: 15px;
+        background-color: #f8f8f8;
+        border-radius: 8px;
+    }
+
+    .review-book-image {
+        width: 80px;
+        height: 120px;
+        object-fit: cover;
+        margin-right: 20px;
+    }
+
+    .review-content h4 {
+        margin: 0;
+        font-size: 18px;
+    }
+
+    .review-content p {
+        margin: 5px 0;
+        color: #555;
+    }
+
+    /* CSS for Delete Button */
+    .delete-form {
+        margin-left: auto;
+    }
+
+    .delete-btn {
+        background-color: #ff4757;
+        color: #fff;
+        padding: 5px 10px;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+    }
+
+    .delete-btn:hover {
+        background-color: #e84118;
+    }
+</style>
+{% endblock %}
+
+

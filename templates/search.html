@@ -1,0 +1,178 @@
+{% extends "base.html" %}
+
+{% block content %}
+<style>
+    html {
+        scroll-behavior: smooth;
+    }
+
+    .book-container {
+        display: flex;
+        align-items: center;
+        margin-bottom: 20px;
+        opacity: 0.5; 
+        transform: translateY(100px); 
+        transition: all 4s; 
+        will-change: opacity, transform; 
+    }
+
+    .book-img {
+        max-width: 100px;
+        max-height: 150px;
+        transition: transform 0.3s;
+    }
+
+    .book-img:hover {
+        transform: scale(2.0);
+    }
+
+    .book-info {
+        margin-left: 20px;
+    }
+
+    .btn-light { 
+        margin-top: 10px;
+    }
+
+    .less, .more {
+        display: none;
+    }
+
+    .read-more {
+        cursor: pointer;
+        color: blue;
+        text-decoration: underline;
+    }
+
+    /* Search Bar, Dropdown, and Button Styling */
+    .form-control, .form-control:focus {
+        background-color: rgba(34, 34, 34, 0.75); /* Semi-transparent dark */
+        color: #fff; /* White text */
+        border: none; /* Remove default border */
+        border-radius: 4px; /* Rounded corners */
+        box-shadow: none; /* No shadow for a flat appearance */
+    }
+
+    .btn-primary {
+        background-color: #007BFF; /* Blue (or pick another accent color) */
+        border: none; /* Remove default border */
+        border-radius: 4px; /* Rounded corners */
+        box-shadow: none; /* No shadow for a flat appearance */
+        transition: background-color 0.3s ease; /* Transition for smooth color change */
+    }
+
+    .btn-primary:hover, .btn-primary:focus {
+        background-color: #0056b3; /* Darker blue on hover/focus */
+    }
+
+    /* Specific styling for the genre dropdown (select element) */
+    .input-group select.form-control {
+        width: 20%;  /* This sets the width of the dropdown to be 20% of the input group */
+        border: none; /* Removes the border */
+        box-shadow: none; /* Removes the shadow */
+        background-color: rgba(34, 34, 34, 0.75); /* Semi-transparent dark background */
+        transition: background-color 0.3s ease; /* Transition for smooth color change */
+    }
+
+    .input-group select.form-control:hover, .input-group select.form-control:focus {
+        background-color: #242424; /* Slightly lighter background on hover/focus */
+    }
+
+    /* Removing the default arrow in the select dropdown for modern browsers (optional) */
+    .input-group select.form-control::-ms-expand {
+        display: none;
+    }
+    .input-group select.form-control {
+        -webkit-appearance: none;
+        -moz-appearance: none;
+        appearance: none;
+    }
+</style>
+
+<div class="container mt-5">
+    <h2 class="mb-4">Search for Books</h2>
+    <form action="{{ url_for('search') }}" method="post">
+        <div class="input-group mb-3">
+            <input type="text" class="form-control" name="query" placeholder="Search for a book...">
+            <select name="genre" class="form-control">
+                <option value="">All Genres</option>
+                <option value="fiction">Fiction</option>
+                <option value="non-fiction">Non-Fiction</option>
+                <option value="fantasy">Fantasy</option>
+                <option value="science fiction">Science Fiction</option>
+            </select>
+            <div class="input-group-append">
+                <button class="btn btn-primary" type="submit">Search</button>
+            </div>
+        </div>
+    </form>
+
+    {% for book in books %}
+    <div class="book-container">
+        <img src="{{ book['volumeInfo'].get('imageLinks', {}).get('thumbnail', 'https://via.placeholder.com/150') }}" class="book-img" alt="{{ book['volumeInfo']['title'] }}">
+        <div class="book-info">
+            <h5>{{ book['volumeInfo']['title'] }}</h5>
+            <p>
+                <span class="less">{{ book['volumeInfo'].get('description', 'No description available.') | truncate(100, True, '...') }}</span>
+                <span class="more">{{ book['volumeInfo'].get('description', 'No description available.') }}</span>
+                <a onclick="toggleReadMore(this)">Read More</a>
+            </p>
+            <p><strong>Authors:</strong> {{ book['volumeInfo'].get('authors', ['Unknown Author']) | join(', ') }}</p>
+            <p><strong>Publisher:</strong> {{ book['volumeInfo'].get('publisher', 'Unknown Publisher') }}</p>
+            <p><strong>Published Date:</strong> {{ book['volumeInfo'].get('publishedDate', 'Unknown Date') }}</p>
+            <a href="{{ url_for('book_details', book_id=book['id']) }}" class="btn btn-light">View Details</a>
+        </div>
+    </div>
+    {% endfor %}
+
+    <div class="mt-4">
+        <ul class="pagination justify-content-center">
+            <li class="page-item {% if not prev_page %}disabled{% endif %}">
+                <a class="page-link" href="{{ url_for('search', query=query, genre=genre, page=prev_page) }}">Previous</a>
+            </li>
+            <li class="page-item {% if not next_page %}disabled{% endif %}">
+                <a class="page-link" href="{{ url_for('search', query=query, genre=genre, page=next_page) }}">Next</a>
+            </li>
+        </ul>
+    </div>
+</div>
+
+<script>
+    function toggleReadMore(element) {
+        const lessText = element.previousElementSibling.previousElementSibling;
+        const moreText = element.previousElementSibling;
+        if (lessText.style.display === "none") {
+            lessText.style.display = "inline";
+            moreText.style.display = "none";
+            element.textContent = "Read More";
+        } else {
+            lessText.style.display = "none";
+            moreText.style.display = "inline";
+            element.textContent = "Read Less";
+        }
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+        const books = document.querySelectorAll('.book-container');
+
+        function checkScroll() {
+            books.forEach(book => {
+                const bookTop = book.getBoundingClientRect().top;
+                const windowHeight = window.innerHeight;
+
+                // If the book is in the viewport
+                if (bookTop < windowHeight && bookTop >= 0) {
+                    book.style.opacity = "1";
+                    book.style.transform = "translateY(0)";
+                }
+            });
+        }
+
+        // Check initially in case books are in the viewport on load
+        checkScroll();
+
+        // Add an event listener for scrolling
+        window.addEventListener('scroll', checkScroll);
+    });
+</script>
+{% endblock %}
