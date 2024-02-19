@@ -5,7 +5,7 @@ from forms import RegistrationForm, LoginForm
 from flask_login import LoginManager, login_user, logout_user, login_required, current_user
 import requests, random
 from flask_migrate import Migrate
-import openai 
+
 from flask_mail import Mail, Message
 from apscheduler.schedulers.background import BackgroundScheduler
 from apscheduler.triggers.interval import IntervalTrigger

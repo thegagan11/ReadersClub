@@ -2,97 +2,127 @@
 
 {% block content %}
 <style>
-    .card-container {
-        perspective: 1500px;
-        position: relative;
-        transition: all 0.5s;
-        overflow: hidden;
-    }
-
-    .card {
-        transition: transform 0.5s;
-        box-shadow: 10px 10px 20px rgba(0, 0, 0, 0.2);
-        max-width: 100%;
-        position: relative;
-        overflow: hidden;
-        cursor: pointer;
-    }
-
-    .card-container:hover .card {
-        transform: scale(1.1);
-        z-index: 1000;
-    }
-
-    .card-img-top {
-        max-width: 100%;
-        max-height: 250px;
-        height: auto;
-    }
-
-    .card-details {
-        position: absolute;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        background: rgba(0, 0, 0, 0.7);
-        color: white;
-        padding: 20px;
-        opacity: 0;
-        transition: opacity 0.5s;
+    /* [Your styles from search.html] */
+    /* ... */
+    .book-container {
         display: flex;
-        flex-direction: column;
-        justify-content: center;
         align-items: center;
+        margin-bottom: 20px;
+        opacity: 0.5; 
+        transform: translateY(100px); 
+        transition: all 4s; 
+        will-change: opacity, transform; 
     }
 
-    .card-container:hover .card-details {
-        opacity: 1;
+    .book-img {
+        max-width: 100px;
+        max-height: 150px;
+        transition: transform 0.3s;
+    }
+
+    .book-img:hover {
+        transform: scale(2.0);
+    }
+
+    .book-info {
+        margin-left: 20px;
     }
 
     .btn-light { 
-        z-index: 2000;
-        position: relative;
+        margin-top: 10px;
     }
+
+    .less, .more {
+        display: none;
+    }
+
+    .read-more {
+        cursor: pointer;
+        color: blue;
+        text-decoration: underline;
+    }
+    /* ... */
 </style>
 
-<h2>Welcome to Capstone</h2>
-<p>Discover and review books with ease.</p>
+<div class="container mt-5">
+    <h2 class="mb-4">Welcome</h2>
+    <p>Discover and review books with ease.</p>
 
-<!-- Search Bar -->
-<form action="{{ url_for('search') }}" method="post" class="mb-4">
-    <div class="input-group">
-        <input type="text" class="form-control" name="query" placeholder="Search for a book...">
-        <select name="genre" class="form-control">
-            <option value="">All Genres</option>
-            <option value="fiction">Fiction</option>
-            <option value="non-fiction">Non-Fiction</option>
-            <option value="fantasy">Fantasy</option>
-            <option value="science fiction">Science Fiction</option>
-            <!-- Add more genres as needed -->
-        </select>
-        <div class="input-group-append">
-            <button class="btn btn-primary" type="submit">Search</button>
-        </div>
-    </div>
-</form>
-
-<!-- Featured Books -->
-<h3>Featured Books</h3>
-<div class="row">
-    {% for book in books %}
-    <div class="col-md-3 mb-4">
-        <div class="card-container">
-            <div class="card">
-                <img src="{{ book['volumeInfo'].get('imageLinks', {}).get('thumbnail', 'https://via.placeholder.com/150') }}" class="card-img-top" alt="{{ book['volumeInfo']['title'] }}">
-                <div class="card-details">
-                    <h5>{{ book['volumeInfo']['title'] }}</h5>
-                    <p>{{ book['volumeInfo'].get('description', 'No description available.') | truncate(100) }}</p>
-                    <a href="{{ url_for('book_details', book_id=book['id']) }}" class="btn btn-light">View Details</a>
-                </div>
+    <!-- Search Bar -->
+    <form action="{{ url_for('search') }}" method="post" class="mb-4">
+        <div class="input-group">
+            <input type="text" class="form-control" name="query" placeholder="Search for a book...">
+            <select name="genre" class="form-control">
+                <option value="">All Genres</option>
+                <option value="fiction">Fiction</option>
+                <option value="non-fiction">Non-Fiction</option>
+                <option value="fantasy">Fantasy</option>
+                <option value="science fiction">Science Fiction</option>
+            </select>
+            <div class="input-group-append">
+                <button class="btn btn-primary" type="submit">Search</button>
             </div>
+        </div>
+    </form>
+
+    <h3 class="mb-4">Featured Books</h3>
+
+    {% for book in books %}
+    <div class="book-container">
+        <img src="{{ book['volumeInfo'].get('imageLinks', {}).get('thumbnail', 'https://via.placeholder.com/150') }}" class="book-img" alt="{{ book['volumeInfo']['title'] }}">
+        <div class="book-info">
+            <h5>{{ book['volumeInfo']['title'] }}</h5>
+            <p>
+                <span class="less">{{ book['volumeInfo'].get('description', 'No description available.') | truncate(100, True, '...') }}</span>
+                <span class="more">{{ book['volumeInfo'].get('description', 'No description available.') }}</span>
+                <a onclick="toggleReadMore(this)">Read More</a>
+            </p>
+            <p><strong>Authors:</strong> {{ book['volumeInfo'].get('authors', ['Unknown Author']) | join(', ') }}</p>
+            <p><strong>Publisher:</strong> {{ book['volumeInfo'].get('publisher', 'Unknown Publisher') }}</p>
+            <p><strong>Published Date:</strong> {{ book['volumeInfo'].get('publishedDate', 'Unknown Date') }}</p>
+            <a href="{{ url_for('book_details', book_id=book['id']) }}" class="btn btn-light">View Details</a>
         </div>
     </div>
     {% endfor %}
 </div>
+
+<script>
+    /* [Your script from search.html] */
+    function toggleReadMore(element) {
+        const lessText = element.previousElementSibling.previousElementSibling;
+        const moreText = element.previousElementSibling;
+        if (lessText.style.display === "none") {
+            lessText.style.display = "inline";
+            moreText.style.display = "none";
+            element.textContent = "Read More";
+        } else {
+            lessText.style.display = "none";
+            moreText.style.display = "inline";
+            element.textContent = "Read Less";
+        }
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+        const books = document.querySelectorAll('.book-container');
+
+        function checkScroll() {
+            books.forEach(book => {
+                const bookTop = book.getBoundingClientRect().top;
+                const windowHeight = window.innerHeight;
+
+                // If the book is in the viewport
+                if (bookTop < windowHeight && bookTop >= 0) {
+                    book.style.opacity = "1";
+                    book.style.transform = "translateY(0)";
+                }
+            });
+        }
+
+        // Check initially in case books are in the viewport on load
+        checkScroll();
+
+        // Add an event listener for scrolling
+        window.addEventListener('scroll', checkScroll);
+    });
+</script>
 {% endblock %}
