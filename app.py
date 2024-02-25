@@ -15,7 +15,9 @@ app = Flask(__name__)
 app.config.from_object(Config)
 app.app_context().push()
 app.config['SECRET_KEY'] = 'your_secret_key'
-app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql:///capstone_db'
+# app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql:///capstone_db'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://uiohkysv:lR2YuyDRkkxW2yHDEilnhQFZm984PCwZ@stampy.db.elephantsql.com/uiohkysv'
+
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 app.config['MAIL_SERVER'] = 'smtp.office365.com'
